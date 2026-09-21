@@ -283,6 +283,34 @@
   .err:empty { display: none; }
   .submit { justify-self: start; }
 
+  /* Reads, likes, tags */
+  .stats { margin: 0; font-size: 0.82rem; color: var(--muted); }
+  .stats.big { font-size: 0.95rem; }
+  .badge.inline { position: static; display: inline-block; align-self: flex-start; background: var(--brand); color: var(--cream); }
+  .savebtn .n { font-weight: 600; color: var(--muted); }
+
+  /* Comments */
+  .comments { max-width: 720px; margin: 0 auto 44px; padding-top: 32px; border-top: 1px solid var(--line); }
+  .comments h2 { margin: 0 0 6px; font-size: clamp(1.4rem, 4vw, 1.8rem); line-height: 1.1; }
+  .csub { margin: 0 0 20px; color: var(--muted); }
+  .comments form { margin: 0 0 24px; gap: 14px; }
+  .clist { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .citem { background: var(--tile); padding: 14px 18px; }
+  .chead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .chead span { color: var(--muted); font-size: 0.85rem; }
+  .chead .linkbtn { margin-left: auto; font-size: 0.85rem; }
+  .citem p { margin: 0; overflow-wrap: anywhere; }
+
+  /* Welcome pop-up */
+  dialog { border: none; padding: 0; width: min(520px, calc(100vw - 32px)); background: var(--bg); color: var(--text); font-family: inherit; border-top: 6px solid var(--brand); }
+  dialog::backdrop { background: rgba(0, 0, 0, 0.55); }
+  .wel { position: relative; display: grid; gap: 16px; padding: 28px 26px 26px; }
+  .wel h2 { margin: 0; padding-right: 36px; font-size: clamp(1.4rem, 5vw, 1.8rem); line-height: 1.1; }
+  .wel p { margin: 0; }
+  .wel .ask { margin: 0; }
+  .wel .close { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border: none; border-radius: 50%; background: transparent; color: var(--text); font-size: 1.7rem; line-height: 1; cursor: pointer; }
+  .wel .row { display: flex; flex-wrap: wrap; gap: 10px; }
+
   /* Footer */
   .site-foot { margin-top: 64px; background: var(--brand); color: var(--cream); }
   .foot-grid { display: grid; gap: 28px; padding-top: 40px; padding-bottom: 32px; }
@@ -339,7 +367,7 @@
       <h4>Community</h4>
       <ul>
         <li><a href="#/">All stories</a></li>
-        <li><a href="#/saved">Saved stories</a></li>
+        <li><a href="#/saved">Liked stories</a></li>
         <li><a href="#/share">Share your story</a></li>
       </ul>
     </div>
@@ -351,8 +379,21 @@
       </ul>
     </div>
   </div>
-  <div class="wrap legal">Stories, names and photos are samples. Anything you post stays on this device.</div>
+  <div class="wrap legal">Stories, names, photos and counts are samples. Anything you post, like or comment stays on this device.</div>
 </footer>
+
+<dialog id="welcome" aria-labelledby="w-h">
+  <div class="wel">
+    <button type="button" class="close" data-wclose aria-label="Close">&times;</button>
+    <h2 id="w-h" class="display">Welcome to the Bla Bli Blu Community</h2>
+    <p>People rarely say "I love you" out loud. They say "nearby anyway" or "extra bana tha". This is where we collect those small, sideways ways of saying it. Read a story, like it, and add your own.</p>
+    <div class="ask"><strong>Share your story with us.</strong><span>What would you name your love? Comment it.</span></div>
+    <div class="row">
+      <button type="button" class="btn" data-wshare autofocus>Share your story</button>
+      <button type="button" class="btn line" data-wclose>Start reading</button>
+    </div>
+  </div>
+</dialog>
 
 <script>
 (function () {
@@ -517,10 +558,73 @@
   ];
   BASE.forEach(function (s) { s.img = PHOTOS[s.slug] || null; });
 
+  /* sample counts: [reads, likes] */
+  var STATS = {
+    'nearby-anyway': [3240, 418], 'couldnt-sleep': [2980, 361], 'not-hungry': [2410, 322],
+    'free-backstage-anyway': [5120, 486], 'was-passing-by': [3860, 604], 'forgot-to-hang-up': [2670, 298],
+    'lost-my-train-of-thought': [3150, 402], 'extra-bana-tha': [2890, 377], 'easier-to-remember': [2240, 289],
+    'only-clean-one': [1980, 254], 'it-was-on-sale': [1460, 231], 'nothing-planned': [1120, 166]
+  };
+  BASE.forEach(function (s) { var t = STATS[s.slug] || [0, 0]; s.reads = t[0]; s.likes = t[1]; });
+
+  var SEED_COMMENTS = {
+    'nearby-anyway': [
+      { name: 'Aditi', text: "My version is 'was getting groceries anyway.' I have never needed groceries.", when: '2 days ago' },
+      { name: 'Rahul', text: "I'd bottle this and call it Nearby Anyway. Done.", when: '1 day ago' }
+    ],
+    'couldnt-sleep': [
+      { name: 'Neha', text: 'The four-second reply got me.', when: '3 days ago' },
+      { name: 'Karan', text: 'We do this with reels. Same thing.', when: '2 days ago' }
+    ],
+    'not-hungry': [
+      { name: 'Pooja', text: 'Every family dinner. Every single one.', when: '4 days ago' },
+      { name: 'Sameer', text: 'The good part of dessert. Yes.', when: '2 days ago' }
+    ],
+    'free-backstage-anyway': [
+      { name: 'Riya', text: 'Crying at my desk. He showed up!', when: '1 day ago' },
+      { name: 'Vikram', text: 'Every wrong step was a step towards her. Okay, I am done.', when: '5 hours ago' }
+    ],
+    'was-passing-by': [
+      { name: 'Ishita', text: 'Half his shoulder got soaked. That line.', when: '3 days ago' },
+      { name: 'Arnav', text: 'My dad did this with a scooter and a raincoat.', when: '1 day ago' }
+    ],
+    'forgot-to-hang-up': [
+      { name: 'Divya', text: "'Forgot' is doing so much work here.", when: '2 days ago' },
+      { name: 'Manav', text: 'Long distance folks, we see you.', when: '1 day ago' }
+    ],
+    'lost-my-train-of-thought': [
+      { name: 'Kavya', text: "'Not anymore.' Stop it.", when: '3 days ago' },
+      { name: 'Tanmay', text: 'The saree that will not stay pleated is so real.', when: '2 days ago' }
+    ],
+    'extra-bana-tha': [
+      { name: 'Sneha', text: 'Nobody makes rajma by accident.', when: '4 days ago' },
+      { name: 'Yash', text: "What would I name it? 'Doosra Tiffin.'", when: '1 day ago' }
+    ],
+    'easier-to-remember': [
+      { name: 'Mahima', text: 'Notes app confession. 10 out of 10.', when: '2 days ago' },
+      { name: 'Ayaan', text: "I keep my partner's order in my notes too.", when: '6 hours ago' }
+    ],
+    'only-clean-one': [
+      { name: 'Trisha', text: 'Eleven jackets. I am laughing.', when: '3 days ago' },
+      { name: 'Rohit', text: "'Only clean one' should be a perfume.", when: '1 day ago' }
+    ],
+    'it-was-on-sale': [
+      { name: 'Anjali', text: 'Out of print. On sale. Sure.', when: '2 days ago' },
+      { name: 'Dhruv', text: 'Hunted in the back of small shops. Love that.', when: '1 day ago' }
+    ],
+    'nothing-planned': [
+      { name: 'Siddhi', text: 'He said it three times, so obviously it was planned.', when: '1 day ago' },
+      { name: 'Kunal', text: 'Name it Nothing Planned and take my money.', when: '3 hours ago' }
+    ]
+  };
+
   /* ---------- state ---------- */
   var favs = store.get('bbb-favs', []);
   var mine = store.get('bbb-stories', []);
   var flash = null;
+  var reads = store.get('bbb-reads', []);
+  var comments = store.get('bbb-comments', {});
+  var TAGS = {};
   var pendingPhoto = null;
   var photoBusy = false;
   var app = document.getElementById('app');
@@ -539,7 +643,7 @@
     return '<svg class="hi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
   }
   function updateSaved() {
-    document.getElementById('saved-link').innerHTML = heartSVG() + '<span>Saved</span><span class="count">' + favs.length + '</span>';
+    document.getElementById('saved-link').innerHTML = heartSVG() + '<span>Liked</span><span class="count">' + favs.length + '</span>';
   }
   function byline(s) {
     var a = s.author;
@@ -552,6 +656,64 @@
     return 'Shared by ' + a.name;
   }
   function pipes(notes) { return notes.split(', ').join(' | '); }
+  function fmt(n) { return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : String(n); }
+  function nReads(s) { return (s.reads || 0) + (reads.indexOf(s.slug) > -1 ? 1 : 0); }
+  function nLikes(s) { return (s.likes || 0) + (isFav(s.slug) ? 1 : 0); }
+  function relTime(ts) {
+    var d = Math.floor((Date.now() - ts) / 1000);
+    if (d < 60) return 'Just now';
+    if (d < 3600) return Math.floor(d / 60) + ' min ago';
+    if (d < 86400) return Math.floor(d / 3600) + ' hr ago';
+    return Math.floor(d / 86400) + ' days ago';
+  }
+  function tagMap() {
+    var m = {}, a = all().filter(function (s) { return !s.mine; }), pop = null, loved = null;
+    a.forEach(function (s) { if (!pop || nReads(s) > nReads(pop)) pop = s; });
+    a.forEach(function (s) { if (!loved || nLikes(s) > nLikes(loved)) loved = s; });
+    if (pop) m[pop.slug] = 'Most popular';
+    if (loved && loved !== pop) m[loved.slug] = 'Most loved';
+    BASE.slice(-2).forEach(function (s) { if (!m[s.slug]) m[s.slug] = 'New'; });
+    all().forEach(function (s) { if (s.mine) m[s.slug] = 'Yours'; });
+    return m;
+  }
+  function statsHTML(s) {
+    return '<p class="stats"><span data-reads="' + esc(s.slug) + '">' + fmt(nReads(s)) + '</span> reads &middot; <span data-likes="' + esc(s.slug) + '">' + fmt(nLikes(s)) + '</span> likes</p>';
+  }
+  function commentItems(slug) {
+    var mineC = (comments[slug] || []).map(function (c) { return { id: c.id, name: c.name, text: c.text, when: relTime(c.ts), mine: true }; });
+    var seed = (SEED_COMMENTS[slug] || []).map(function (c) { return { name: c.name, text: c.text, when: c.when }; });
+    return mineC.concat(seed);
+  }
+  function commentListHTML(slug) {
+    var items = commentItems(slug);
+    if (!items.length) return '<li class="citem">No comments yet. Be the first.</li>';
+    return items.map(function (c) {
+      return '<li class="citem"><div class="chead"><strong>' + esc(c.name) + '</strong><span>' + esc(c.when) + '</span>' +
+        (c.mine ? '<button type="button" class="linkbtn" data-cdel="' + esc(c.id) + '" data-cslug="' + esc(slug) + '">Delete</button>' : '') +
+        '</div><p>' + esc(c.text) + '</p></li>';
+    }).join('');
+  }
+  function commentsSection(slug) {
+    var n = commentItems(slug).length;
+    return '<section class="comments" aria-labelledby="c-h">' +
+      '<h2 id="c-h" class="display">Comments (<span data-ccount="' + esc(slug) + '">' + n + '</span>)</h2>' +
+      '<p class="csub">What would you name this feeling? Comment it. We\'ll bottle one.</p>' +
+      '<form id="cform" data-slug="' + esc(slug) + '" novalidate>' +
+        '<label>Your name<small>Optional. Leave it empty to comment as Anonymous.</small><input type="text" id="c-name" maxlength="40" autocomplete="off"></label>' +
+        '<label>Your comment<textarea id="c-text" rows="3" maxlength="300"></textarea></label>' +
+        '<p class="err" id="c-err" role="alert"></p>' +
+        '<button type="submit" class="btn submit">Post comment</button>' +
+      '</form>' +
+      '<ul class="clist" id="clist">' + commentListHTML(slug) + '</ul>' +
+    '</section>';
+  }
+  function refreshComments(slug) {
+    var ul = document.getElementById('clist');
+    if (ul) ul.innerHTML = commentListHTML(slug);
+    var n = commentItems(slug).length;
+    var els = document.querySelectorAll('[data-ccount="' + slug + '"]');
+    for (var i = 0; i < els.length; i++) els[i].textContent = n;
+  }
   function variant(slug) {
     var h = 0;
     for (var i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) % 9973;
@@ -564,7 +726,7 @@
 
   /* ---------- views ---------- */
   function heartBtn(s) {
-    return '<button type="button" class="heart" data-fav="' + esc(s.slug) + '" aria-pressed="' + isFav(s.slug) + '" aria-label="Save story: ' + esc(s.phrase) + '">' + heartSVG() + '</button>';
+    return '<button type="button" class="heart" data-fav="' + esc(s.slug) + '" aria-pressed="' + isFav(s.slug) + '" aria-label="Like story: ' + esc(s.phrase) + '">' + heartSVG() + '</button>';
   }
   function cardHTML(s) {
     var f = s.f ? FRAG[s.f] : null;
@@ -573,9 +735,9 @@
       : '<p class="notes">' + esc(bylinePlain(s)) + '</p>';
     return '<article class="card">' +
       '<div class="mwrap"><a class="media" href="#/' + esc(s.slug) + '" tabindex="-1" aria-hidden="true">' + mediaInner(s) + '</a>' +
-        (s.mine ? '<span class="badge">Yours</span>' : '') + heartBtn(s) + '</div>' +
+        (TAGS[s.slug] ? '<span class="badge">' + esc(TAGS[s.slug]) + '</span>' : '') + heartBtn(s) + '</div>' +
       '<div class="info">' +
-        '<h3><a href="#/' + esc(s.slug) + '">' + esc(s.phrase) + '</a></h3>' + notes +
+        '<h3><a href="#/' + esc(s.slug) + '">' + esc(s.phrase) + '</a></h3>' + statsHTML(s) + notes +
         '<p class="did">' + esc(s.did) + '</p>' +
         '<a class="btn" href="#/' + esc(s.slug) + '">Read story</a>' +
       '</div></article>';
@@ -584,7 +746,7 @@
   function home() {
     document.title = 'Bla Bli Blu Community';
     var faq = [
-      ['What is the Bla Bli Blu Community?', 'A place to collect the small things people do and explain away, and the lines they use. Read a story, save it, or share your own.'],
+      ['What is the Bla Bli Blu Community?', 'A place to collect the small things people do and explain away, and the lines they use. Read a story, like it, comment on it, or share your own.'],
       ['Can I post anonymously?', 'Yes. Tick "Post anonymously" and your name and Instagram handle are not shown with your story.'],
       ['Can I add a photo?', 'Yes, it is optional. Add a photo of the two of you, or skip it. Stories without a photo get a Bla Bli Blu panel.'],
       ['Could my phrase become a fragrance name?', 'Yes, and it is already in motion. Every phrase shared here is in the running to name a Bla Bli Blu fragrance.', '<div class="ask"><strong>What would you name love?</strong><span>Comment it. We\'ll bottle one.</span><em>#SayItWithBlaBliBlu</em><a class="btn light" href="#/share">Share your phrase</a></div>']
@@ -606,14 +768,14 @@
   }
 
   function savedView() {
-    document.title = 'Saved | Bla Bli Blu Community';
+    document.title = 'Liked | Bla Bli Blu Community';
     var list = all().filter(function (s) { return isFav(s.slug); });
     app.innerHTML =
       '<div class="wrap">' +
-        '<section class="pagehead"><h1 id="page-h" class="display" tabindex="-1">Saved stories</h1>' +
-        '<p>' + (list.length ? 'The stories you have saved on this device.' : 'Tap the heart on any story to keep it here.') + '</p></section>' +
+        '<section class="pagehead"><h1 id="page-h" class="display" tabindex="-1">Liked stories</h1>' +
+        '<p>' + (list.length ? 'The stories you have liked on this device.' : 'Tap the heart on any story to like it and keep it here.') + '</p></section>' +
         '<section class="sec"><div class="grid">' +
-          (list.length ? list.map(cardHTML).join('') : '<div class="empty"><p>Nothing saved yet.</p><a class="btn" href="#/">Browse stories</a></div>') +
+          (list.length ? list.map(cardHTML).join('') : '<div class="empty"><p>Nothing liked yet.</p><a class="btn" href="#/">Browse stories</a></div>') +
         '</div></section>' +
       '</div>';
   }
@@ -624,6 +786,7 @@
     var a = all();
     var next = a[(a.indexOf(s) + 1) % a.length];
     var f = s.f ? FRAG[s.f] : null;
+    if (reads.indexOf(s.slug) < 0) { reads.push(s.slug); store.set('bbb-reads', reads); }
     var on = isFav(s.slug);
     document.title = s.phrase + ' | Bla Bli Blu Community';
     var note = '';
@@ -634,15 +797,18 @@
         '<div class="top">' +
           '<div class="mwrap"><div class="media">' + mediaInner(s) + '</div></div>' +
           '<div class="side">' + note +
+            (TAGS[s.slug] ? '<span class="badge inline">' + esc(TAGS[s.slug]) + '</span>' : '') +
             '<h1 id="page-h" class="display" tabindex="-1">' + esc(s.phrase) + '</h1>' +
             '<p class="lede">' + esc(s.did) + '</p>' +
+            '<p class="stats big"><span data-reads="' + esc(s.slug) + '">' + fmt(nReads(s)) + '</span> reads &middot; <span data-ccount="' + esc(s.slug) + '">' + commentItems(s.slug).length + '</span> comments</p>' +
             '<div class="meta"><span class="by">' + byline(s) + '</span>' +
-              '<button type="button" class="btn line savebtn" data-fav="' + esc(s.slug) + '" aria-pressed="' + on + '">' + heartSVG() + '<span class="lbl">' + (on ? 'Saved' : 'Save story') + '</span></button></div>' +
+              '<button type="button" class="btn line savebtn" data-fav="' + esc(s.slug) + '" aria-pressed="' + on + '">' + heartSVG() + '<span class="lbl">' + (on ? 'Liked' : 'Like') + '</span><span class="n" data-likes="' + esc(s.slug) + '">' + fmt(nLikes(s)) + '</span></button></div>' +
             '<div class="pair"><div><small>What they said</small><strong>' + esc(s.said) + '</strong></div><div><small>What they meant</small><strong>' + esc(s.meant) + '</strong></div></div>' +
             (f ? '<div class="fragbox"><small>The fragrance in this story</small><h3 class="display">' + esc(f.name) + '</h3>' + (f.notes ? '<p>' + esc(pipes(f.notes)) + '</p>' : '') + '</div>' : '') +
           '</div>' +
         '</div>' +
         '<div class="textcol">' + s.text.map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') + '</div>' +
+        commentsSection(s.slug) +
         '<div class="extras">' +
           '<div class="say"><h2>Say it your way</h2><ul class="phrases">' + s.phrases.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' +
             '<ul class="tags" aria-label="Hashtags">' + s.tags.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>' +
@@ -800,11 +966,22 @@
         if (btns[i].getAttribute('data-fav') === slug) {
           btns[i].setAttribute('aria-pressed', String(on));
           var lbl = btns[i].querySelector('.lbl');
-          if (lbl) lbl.textContent = on ? 'Saved' : 'Save story';
+          if (lbl) lbl.textContent = on ? 'Liked' : 'Like';
         }
       }
+      var st = findStory(slug);
+      var lk = document.querySelectorAll('[data-likes="' + slug + '"]');
+      for (var j = 0; j < lk.length; j++) lk[j].textContent = fmt(nLikes(st));
       updateSaved();
       if (location.hash === '#/saved') savedView();
+      return;
+    }
+    var cd = ev.target.closest('[data-cdel]');
+    if (cd) {
+      var cs = cd.getAttribute('data-cslug'), cid = cd.getAttribute('data-cdel');
+      comments[cs] = (comments[cs] || []).filter(function (c) { return c.id !== cid; });
+      store.set('bbb-comments', comments);
+      refreshComments(cs);
       return;
     }
     var db = ev.target.closest('[data-del]');
@@ -827,7 +1004,43 @@
     document.getElementById('marq').innerHTML = half + half;
   })();
 
+  document.addEventListener('submit', function (ev) {
+    if (ev.target.id !== 'cform') return;
+    ev.preventDefault();
+    var slug = ev.target.getAttribute('data-slug');
+    var name = document.getElementById('c-name').value.trim() || 'Anonymous';
+    var text = document.getElementById('c-text').value.trim();
+    var err = document.getElementById('c-err');
+    if (text.length < 2) { err.textContent = 'Write a comment first.'; return; }
+    err.textContent = '';
+    if (!comments[slug]) comments[slug] = [];
+    comments[slug].unshift({ id: 'c' + Date.now(), name: name, text: text, ts: Date.now() });
+    store.set('bbb-comments', comments);
+    document.getElementById('c-text').value = '';
+    refreshComments(slug);
+  });
+
+  function closeWelcome() {
+    var d = document.getElementById('welcome');
+    if (d.close) d.close(); else d.removeAttribute('open');
+  }
+  function initWelcome() {
+    var d = document.getElementById('welcome');
+    if (!d) return;
+    d.addEventListener('click', function (ev) {
+      if (ev.target === d || ev.target.closest('[data-wclose]')) closeWelcome();
+      if (ev.target.closest('[data-wshare]')) { closeWelcome(); location.hash = '#/share'; }
+    });
+    if (location.hash.replace(/^#\/?/, '')) return;
+    try {
+      if (window.sessionStorage.getItem('bbb-welcomed')) return;
+      window.sessionStorage.setItem('bbb-welcomed', '1');
+    } catch (e) {}
+    if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+  }
+
   function route() {
+    TAGS = tagMap();
     var h = location.hash.replace(/^#\/?/, '');
     if (!h) home();
     else if (h === 'saved') savedView();
@@ -840,6 +1053,7 @@
   }
   window.addEventListener('hashchange', route);
   route();
+  initWelcome();
 })();
 </script>
 </body>
