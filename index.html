@@ -307,6 +307,7 @@
   .wel { position: relative; display: grid; gap: 16px; padding: 28px 26px 26px; }
   .wel h2 { margin: 0; padding-right: 36px; font-size: clamp(1.4rem, 5vw, 1.8rem); line-height: 1.1; }
   .wel p { margin: 0; }
+  .wel .lead { font-size: 1.1rem; font-weight: 700; }
   .wel .ask { margin: 0; }
   .wel .close { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border: none; border-radius: 50%; background: transparent; color: var(--text); font-size: 1.7rem; line-height: 1; cursor: pointer; }
   .wel .row { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -386,8 +387,9 @@
   <div class="wel">
     <button type="button" class="close" data-wclose aria-label="Close">&times;</button>
     <h2 id="w-h" class="display">Welcome to the Bla Bli Blu Community</h2>
-    <p>People rarely say "I love you" out loud. They say "nearby anyway" or "extra bana tha". This is where we collect those small, sideways ways of saying it. Read a story, like it, and add your own.</p>
-    <div class="ask"><strong>Share your story with us.</strong><span>What would you name your love? Comment it.</span></div>
+    <p class="lead">Everyone has their own way of saying &ldquo;I love you.&rdquo;</p>
+    <p>Sometimes it&rsquo;s &ldquo;Text me when you reach,&rdquo; sometimes &ldquo;I&rsquo;ve ordered food for you.&rdquo; We&rsquo;re here to celebrate all the little ways we show love.</p>
+    <div class="ask"><strong>Have a story of your own?</strong><span>Share it with us!</span><span>Get a chance to name a Bla Bli Blu perfume inspired by your love.</span></div>
     <div class="row">
       <button type="button" class="btn" data-wshare autofocus>Share your story</button>
       <button type="button" class="btn line" data-wclose>Start reading</button>
